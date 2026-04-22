@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e1a">
+<title>Тест: HTML и компьютерные сети</title>
+<style>
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2235;--border:#1e2d45;
+  --accent:#00d4aa;--accent2:#0099ff;--danger:#ff4757;--warn:#ffa502;
+  --text:#e8edf5;--muted:#6b7fa3;--correct:#00d4aa;--wrong:#ff4757;
+  --radius:12px;
+  --font-display:-apple-system,'SF Pro Display','Helvetica Neue',Arial,sans-serif;
+  --font-mono:-apple-system-ui-monospace,'SF Mono','Menlo',monospace;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:block}
+
+/* ── START ── */
+#start-screen{min-height:100vh;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem 1rem;text-align:center}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);border-radius:100px;padding:6px 16px;margin-bottom:1.5rem;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.start-title{font-family:var(--font-display);font-size:clamp(22px,8vw,52px);font-weight:800;line-height:1.15;margin-bottom:0.75rem;background:linear-gradient(135deg,#00d4aa,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.start-sub{font-size:13px;color:var(--muted);margin-bottom:2rem;line-height:1.7;padding:0 0.5rem}
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:360px;margin:0 auto 2rem}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 0.75rem;text-align:center}
+.info-icon{font-size:22px;margin-bottom:6px}
+.info-val{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--accent);margin-bottom:3px}
+.info-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.start-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0e1a;font-family:var(--font-display);font-size:13px;font-weight:600;border:none;border-radius:100px;padding:16px 40px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 40px rgba(0,212,170,0.3);min-height:52px;touch-action:manipulation}
+.start-btn:active{transform:scale(0.97);opacity:0.9}
+
+/* ── QUIZ ── */
+#quiz-screen{max-width:820px;margin:0 auto;padding:0 0.75rem calc(80px + var(--safe-bottom))}
+.quiz-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,0.97)border-bottom:1px solid var(--border);padding:8px 0;margin-bottom:1rem}
+.quiz-header-inner{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:6px 10px;align-items:center}
+.quiz-title-sm{font-family:var(--font-display);font-size:11px;font-weight:600;color:var(--muted);grid-column:1;grid-row:1}
+.timer-box{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 12px;justify-content:center;grid-column:2;grid-row:1/3}
+.timer-box.warn{border-color:var(--warn);background:rgba(255,165,2,0.1)}
+.timer-box.danger{border-color:var(--danger);background:rgba(255,71,87,0.1);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.6}}
+.timer-val{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text);letter-spacing:2px;min-width:54px;text-align:center}
+.timer-box.warn .timer-val{color:var(--warn)}
+.timer-box.danger .timer-val{color:var(--danger)}
+.progress-wrap{grid-column:1;grid-row:2}
+.progress-stats{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width 0.3s}
+
+/* ── QUESTION CARD ── */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;transition:border-color 0.2s}
+.q-card.answered{border-color:rgba(0,212,170,0.35)}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.q-num{font-size:10px;font-weight:700;color:var(--accent);background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:5px;padding:2px 8px;letter-spacing:1px;flex-shrink:0}
+.q-status{font-size:10px;color:var(--muted)}
+.q-text{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:1rem;word-break:break-word}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:13px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color 0.15s,background 0.15s;user-select:none;-webkit-user-select:none;min-height:48px;touch-action:manipulation}
+.opt:active{background:rgba(0,212,170,0.05);border-color:rgba(0,212,170,0.3)}
+.opt.selected{border-color:var(--accent);background:rgba(0,212,170,0.08)}
+.opt.correct{border-color:var(--correct);background:rgba(0,212,170,0.12)}
+.opt.wrong{border-color:var(--wrong);background:rgba(255,71,87,0.1)}
+.opt-badge{font-size:11px;font-weight:700;min-width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--border);color:var(--muted);flex-shrink:0;margin-top:0}
+.opt.selected .opt-badge{background:var(--accent);color:#0a0e1a}
+.opt.correct .opt-badge{background:var(--correct);color:#0a0e1a}
+.opt.wrong .opt-badge{background:var(--wrong);color:#fff}
+.opt-text{font-size:13px;color:var(--text);line-height:1.5;word-break:break-word;padding-top:3px}
+
+/* ── SUBMIT BAR ── */
+.submit-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,14,26,0.97)border-top:1px solid var(--border);padding:10px 1rem;padding-bottom:calc(10px + var(--safe-bottom))}
+.submit-inner{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.submit-hint{font-size:12px;color:var(--muted);white-space:nowrap}
+.submit-hint span{color:var(--accent);font-weight:600}
+.submit-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0e1a;font-family:var(--font-display);font-size:11px;font-weight:600;border:none;border-radius:100px;padding:13px 22px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(0,212,170,0.25);min-height:46px;touch-action:manipulation;white-space:nowrap}
+.submit-btn:active{transform:scale(0.97);opacity:0.9}
+
+/* ── RESULT ── */
+#result-screen{min-height:100vh;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem}
+.result-wrap{max-width:720px;width:100%;padding-top:1.5rem}
+.result-header{text-align:center;margin-bottom:2rem}
+.result-grade{font-family:var(--font-display);font-size:clamp(28px,10vw,64px);font-weight:800;margin-bottom:0.5rem}
+.result-grade.excellent{background:linear-gradient(135deg,#00d4aa,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-grade.good{background:linear-gradient(135deg,#0099ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-grade.ok{color:var(--warn)}
+.result-grade.fail{color:var(--danger)}
+.result-pct{font-family:var(--font-display);font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:24px;font-weight:700;margin-bottom:4px}
+.stat-val.c-green{color:var(--correct)}
+.stat-val.c-red{color:var(--wrong)}
+.stat-val.c-blue{color:var(--accent2)}
+.stat-val.c-muted{color:var(--muted)}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.result-actions{display:flex;flex-direction:column;gap:10px;align-items:center;margin:1.5rem 0}
+.start-btn-res{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0e1a;font-family:var(--font-display);font-size:13px;font-weight:600;border:none;border-radius:100px;padding:16px 36px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;width:100%;max-width:320px;min-height:52px;touch-action:manipulation}
+.start-btn-res:active{transform:scale(0.97);opacity:0.9}
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--text);font-family:var(--font-display);font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:100px;padding:14px 28px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;width:100%;max-width:320px;min-height:48px;touch-action:manipulation}
+.btn-secondary:active{border-color:var(--accent);color:var(--accent)}
+.review-title{font-family:var(--font-display);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.review-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:8px;word-break:break-word}
+.review-card.r-correct{border-left:3px solid var(--correct)}
+.review-card.r-wrong{border-left:3px solid var(--wrong)}
+.review-card.r-skip{border-left:3px solid var(--muted)}
+.review-q{font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.6}
+.review-answers{display:flex;flex-direction:column;gap:5px}
+.review-ans{display:flex;align-items:flex-start;gap:7px;font-size:12px;padding:6px 10px;border-radius:7px;line-height:1.5}
+.review-ans.ra-correct{background:rgba(0,212,170,0.08);color:var(--correct)}
+.review-ans.ra-wrong{background:rgba(255,71,87,0.08);color:var(--wrong)}
+.review-ans.ra-skip{background:rgba(107,127,163,0.1);color:var(--muted)}
+.review-tag{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.ra-correct .review-tag{background:var(--correct);color:#0a0e1a}
+.ra-wrong .review-tag{background:var(--wrong);color:#fff}
+.ra-skip .review-tag{background:var(--muted);color:#fff}
+
+/* ── TIMEOUT ── */
+#timeout-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,14,26,0.97)align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem}
+#timeout-overlay.show{display:flex}
+.timeout-icon{font-size:64px;margin-bottom:1rem;animation:shake 0.5s 0.2s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.timeout-title{font-family:var(--font-display);font-size:clamp(22px,7vw,44px);font-weight:800;color:var(--danger);margin-bottom:0.5rem}
+.timeout-sub{font-size:13px;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="start-screen" class="screen active">
+  <div class="logo-badge"><span class="logo-dot"></span>Экзаменационный тест</div>
+  <h1 class="start-title">HTML &amp;<br>Компьютерные сети</h1>
+  <p class="start-sub">20 случайных вопросов из базы 97 уникальных вопросов<br>Варианты ответов перемешиваются случайно каждый раз</p>
+  <div class="info-grid">
+    <div class="info-card"><div class="info-icon">📋</div><div class="info-val">20</div><div class="info-lbl">Вопросов</div></div>
+    <div class="info-card"><div class="info-icon">⏱️</div><div class="info-val">40:00</div><div class="info-lbl">Время</div></div>
+    <div class="info-card"><div class="info-icon">🎯</div><div class="info-val">5</div><div class="info-lbl">Вариантов</div></div>
+    <div class="info-card"><div class="info-icon">🔀</div><div class="info-val">∞</div><div class="info-lbl">Перемешиваний</div></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">▶ Начать тест</button>
+</div>
+
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <div class="quiz-title-sm">HTML &amp; Сети</div>
+      <div class="timer-box" id="timer-box">
+        <span>⏱</span>
+        <span class="timer-val" id="timer-display">40:00</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-stats">
+          <span id="prog-text">Отвечено: 0 / 20</span>
+          <span id="prog-pct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="questions-container"></div>
+  <div style="height:72px"></div>
+  <div class="submit-bar">
+    <div class="submit-inner">
+      <div class="submit-hint">Отвечено: <span id="answered-count">0</span> из 20</div>
+      <button class="submit-btn" onclick="submitQuiz()">✓ Завершить тест</button>
+    </div>
+  </div>
+</div>
+
+<div id="result-screen" class="screen">
+  <div class="result-wrap">
+    <div class="result-header">
+      <div class="result-grade" id="result-grade"></div>
+      <div class="result-pct" id="result-pct"></div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="result-actions">
+      <button class="start-btn-res" onclick="newQuiz()">🔀 Новый тест</button>
+      <button class="btn-secondary" onclick="scrollToReview()">📋 Разбор ошибок</button>
+    </div>
+    <div class="review-title">Разбор ответов</div>
+    <div id="review-container"></div>
+    <div style="height:3rem"></div>
+  </div>
+</div>
+
+<div id="timeout-overlay">
+  <div class="timeout-icon">⏰</div>
+  <div class="timeout-title">Время вышло!</div>
+  <div class="timeout-sub">40 минут истекли. Результаты посчитаны автоматически.</div>
+  <button class="start-btn" onclick="dismissTimeout()">Посмотреть результаты</button>
+</div>
+
+<script>
+// Вопросы 1-97 точно из документа. Столбец А) — правильный ответ (индекс 0).
+const ALL_Q=[
+{q:"Как называется сетевая система, которая позволяет любому компьютеру обмениваться и передавать информацию по всему миру?",o:["Интернет","Сеть","Сервер","Протокол","Мессенджер"]},
+{q:"Как называется особый способ соединения компьютеров друг с другом в локальной сети?",o:["Клиент-сервер","Сервер","Интернет-сеть","Протокол","Платеж"]},
+{q:"протокол передачи файлов",o:["ФТП",".PTP","LDAP","TCP/IP","VPN"]},
+{q:"Какие тексты можно читать на компьютере или другом электронном устройстве?",o:["Гипертекст","Гипермедиа","Гиперссылка","Тексты","Файл"]},
+{q:"Ученый, изобретший HTML",o:["Тим Бернерс-Ли","Андрис ван Дам","Тед Нельсон","Тим –Бриттани-Ли","Марко ван Бастен"]},
+{q:"Ниже перечислены нестандартные теги:",o:["&lt;hr&gt;, &lt;img&gt;","&lt;html&gt;&lt;/html&gt;,","&lt;hl&gt;&lt;/hl&gt;","&lt;p&gt;&lt;/p&gt;","&lt;https&gt;&lt;/https&gt;"]},
+{q:"Какой тег используется для создания заголовка строки заголовка?",o:["&lt;title&gt;&lt;/title&gt;","&lt;body&gt;&lt;/body&gt;","&lt;html&gt;&lt;/html&gt;","&lt;big&gt; &lt;/big&gt;","&lt;n&gt;&lt;/n&gt;"]},
+{q:"Какой тег используется для выделения текста жирным шрифтом?",o:["&lt;B&gt;","&lt;I&gt;","&lt;U&gt;","&lt;P&gt;","&lt;S&gt;"]},
+{q:"Какой термин ввёл в обиход Тед Нельсон в 1963 году?",o:["Гипертекст","Дескриптор","Ярлык","HTML","Сервер"]},
+{q:"Основной текст располагается в теле документа между тегами ........... Замените многоточие соответствующим словом.",o:["&lt;head&gt;&lt;/head&gt;","&lt;html&gt;&lt;/html&gt;","&lt;title&gt;&lt;/title&gt;","&lt;body&gt;&lt;/body&gt;","&lt;air&gt; &lt;/air&gt;"]},
+{q:"Какова функция тега &lt;BR&gt;?",o:["Оставьте пустую строку","Кнопка","Выделить текст","Создание рамки","тимбилдинг"]},
+{q:"Какой тег используется для установки размера шрифта, превышающего базовый размер шрифта?",o:["&lt;БОЛЬШОЙ&gt;","&lt;BR&gt;","&lt;Подпись&gt;","&lt;HR&gt;","&lt;FR&gt;"]},
+{q:"Укажите тег, используемый для разделения текста на абзацы.",o:["&lt;P&gt;&lt;/P&gt;","&lt;H1&gt;","&lt;BR&gt;","&lt;U&gt;","&lt;R&gt;"]},
+{q:"Что реализует список в &lt;UL&gt;?",o:["Маркированный список","Пронумерованный список","Список определений","Правильный ответ не показан.","Запланированный список"]},
+{q:"Web – Название тега, используемого для создания таблицы в документе.",o:["&lt;таблица&gt;","&lt;Подпись&gt;","&lt;РАМКА&gt;","&lt;ШРИФТ&gt;","&lt;правая&gt;"]},
+{q:"Отображение HTML-документов одновременно на странице браузера.",o:["Рамки","Формы","веб-страница","Списки","Серверы"]},
+{q:"Укажите атрибут, определяющий количество вертикальных кадров.",o:["столбцы","ряды","цвет","выровнять","основной"]},
+{q:"Какова функция атрибута Rows?",o:["Возвращает количество горизонтальных кадров.","Возвращает количество вертикальных кадров.","Возвращает количество горизонтальных фигур","Указывает количество вертикальных фигур","Восстанавливает формы"]},
+{q:"Как ещё можно назвать этот тег?",o:["Дескриптор","Код","Веб-тег","Дизайнер","Верхний/нижний колонтитул"]},
+{q:"Покажите синтаксис для записи поля пароля.",o:["&lt;input type=\"text\" name \"password\"/&gt;","&lt;input type=\"text\" name \"firstname\"/&gt;","&lt;input type=\"text\" name \"user\"/&gt;","&lt;input type=\"text\" name \"lastname\"/&gt;","&lt;input type=\"text\" name \"person\"/&gt;"]},
+{q:"Что такое TCP/IP?",o:["Протокол, контролирующий прием/передачу информации.","программа сортировки информации","сеть хранения информации","Интернет-адрес","Антивирус"]},
+{q:"Из скольких частей (чисел) состоит IP-адрес?",o:["4 части (числа), разделённые точкой.","5 чисел, разделённых дефисом.","Из 10 чисел в последовательности","2 цифры","Из 4 сложенных цифр"]},
+{q:"Что такое браузер?",o:["Программа на компьютере","Антивирус","Уборщик","Интернет","БАРАН"]},
+{q:"Основная функция браузерной программы:",o:["Откройте веб-страницу по введенному адресу.","Управление компьютером","Изобретение новых идей","Скрыть IP-адрес","Написание веб-ссылок"]},
+{q:"Какой код используется для отправки электронных писем пользователю в компьютерной сети?",o:["Двоичный","Шестнадцатеричная система счисления","Графический подход","Цифровой","Символический"]},
+{q:"Символ, разделяющий две части адреса электронной почты.",o:["@","!","*","Нет.",":"]},
+{q:"Из чего состоит адрес почтового сервера?",o:["Из доменов","Из чисел","Из символов","Из писем","Из ничего"]},
+{q:"Какой символ разделяет части адреса почтового сервера?",o:[":","*","!","@","Нет."]},
+{q:"Что такое FTP?",o:["протокол передачи файлов","программа защиты файлов","Как создать программу","Программа вывода гипертекста","Программа для чтения гипертекста"]},
+{q:"Популярные российские поисковые системы:",o:["Рамблер, Яндекс, Апорт","Google, Firefox","Microsoft Edge, Google, Яндекс","Бинг, Яху!","Яндекс, Google, Нигма"]},
+{q:"Что такое веб-страница?",o:["Электронный документ в системе WWW","Веб-сайт написан на языке HTTPS.","Документ, расположенный в гипертекстовой системе.","Документ написан в формате HTML.","Документ хранится на жестком диске."]},
+{q:"Интернет — это...",o:["крупномасштабная всемирная сеть","локальная сеть","региональная информационно-компьютерная сеть","локальная информационная сеть","корпоративная сеть"]},
+{q:"В каком году появился интернет?",o:["1983","1993","1985","1982","1987"]},
+{q:"Основные ячейки интернет-сети:",o:["локальная сеть","хост-компьютеры","Волоконно-оптические кабели с очень высокой проводимостью","телефонные линии","телефонные линии"]},
+{q:"Стандартный интерфейс CGI выглядит следующим образом:",o:["Реализует серверные приложения, вызываемые по URL-адресу.","Волоконно-оптические кабели с очень высокой проводимостью","состоит из типов компьютеров, каналов связи и механических механизмов.","Состоит из типов компьютеров, их устройств и панелей управления.","Состоит из различных типов компьютеров, сетевых информационных компонентов и электрооборудования."]},
+{q:"Протоколы, не являющиеся сетевыми протоколами:",o:["HTML","TCP/IP","СОСКАЛЬЗЫВАТЬ","ФТП","ППП"]},
+{q:"Сколько слоев имеет модель OSI?",o:["Уровень 7","Уровень 8","Уровень 9","Уровень 6","Уровень 5"]},
+{q:"Пятый слой модели OSI называется...",o:["сессионный","применяемый","транспорт","онлайн","канал"]},
+{q:"Первый слой модели OSI называется...",o:["физический","сессионный","канал","транспорт","онлайн"]},
+{q:"Общий объем информации, передаваемой через один сетевой компьютер в интернете, называется...",o:["трафик","расписание","транзит","фонд","количество"]},
+{q:"Мы называем это налаживанием связей...",o:["Три слоя модели OSI","Слой 2 модели OSI","4 слоя модели OSI","6 слоев модели OSI","5 слоев модели OSI"]},
+{q:"Мы говорим о практичности...",o:["7 слоев модели OSI","4 слоя модели OSI","6 слоев модели OSI","5 слоев модели OSI","Слой 0 модели OSI"]},
+{q:"Интернет-провайдер",o:["поставщик","поставщик","исполнитель","дилер","продавец"]},
+{q:"Коммутатор компьютера в сети называется...",o:["Центр","Хаб","Хозяин","ICQ","ВАН"]},
+{q:"Единица измерения скорости передачи данных через модем:",o:["тело","вши","фасоль","баннер","Бонар"]},
+{q:"Устройство для подключения компьютеров к сети через телефонный канал называется...",o:["модем","сканер","порт","слот","сервер"]},
+{q:"Язык разметки гипертекста называется...",o:["HTML","JavaScript","Турбо Паскаль","Дельфы","C++"]},
+{q:"Что такое веб-страница (HTML-документ)?",o:["текстовый файл типа htm или htm","графический файл типа gif или jpg","текстовый файл типа txt или doc","Двоичный файл типа Com или exe","текстовый файл типа g или txt"]},
+{q:"Укажите протокол, реализующий адресацию пакетов в сети...",o:["IP","TCP","DNS","URL","НКП/ ИП"]},
+{q:"Какова функция протокола TCP?",o:["выполняет задачу отправки данных.","объединяет информацию в единую систему","разделяет данные на несколько частей","собирает данные","обрабатывает и организует данные"]},
+{q:"Информационная составляющая сети…",o:["состоит из типов компьютеров, их устройств и электрических механизмов.","Состоит из типов компьютеров, их устройств, каналов связи и механизмов связи.","состоит из типов компьютеров, каналов связи и механических механизмов.","Состоит из типов компьютеров, их устройств и панелей управления.","Состоит из различных типов компьютеров, сетевых информационных компонентов и электрооборудования."]},
+{q:"Какой из телефонных каналов удобнее для связи с поставщиком услуг?",o:["цифровой телефонный канал","Телефонный канал с дополнительным устройством AVU","аналоговый телефонный канал","телефонный канал с блокировщиком","радиотелефонный канал"]},
+{q:"С какого символа начинаются и заканчиваются все теги?",o:["Все теги начинаются с символа «меньше» (&lt;) и заканчиваются символом «больше» (&gt;).","Все теги начинаются с символа «открывающей кавычки» (\") и заканчиваются символом «закрывающей кавычки» (\").","Все теги начинаются со знака плюс (+) и заканчиваются знаком минус (-).","все тег \"звезда\" (*) символ начинается, и \"точно по делу\" с символом (.) конец","Все теги начинаются с восклицательного знака (!) и заканчиваются вопросительным знаком (?)."]},
+{q:"Какой атрибут достаточно использовать для тега &lt;FONT&gt;, чтобы изменить цвет шрифта?",o:["Чтобы изменить цвет шрифта, просто используйте атрибут COLOR-=\"X\" в теге &lt;FONT&gt;.","Чтобы изменить цвет шрифта, просто используйте атрибут COLOR-=\"V\" в теге &lt;TXT&gt;.","Чтобы изменить цвет шрифта, просто добавьте атрибут COLOR-=\"C\" к тегу &lt;BAS&gt;.","Чтобы изменить цвет шрифта, просто используйте атрибут COLOR-=\"E\" в теге &lt;DOC&gt;.","Чтобы изменить цвет шрифта, просто добавьте атрибут COLOR-=\"F\" к тегу &lt;COM&gt;."]},
+{q:"Элемент, образующий строку таблицы:",o:["ТР","HR","ТД","БР","ТХ"]},
+{q:"Элемент ячейки, представляющий собой имя столбца или строки в таблице:",o:["ТХ","ТД","ТР","HR","БР"]},
+{q:"Какой тег используется для представления обычных ячеек:",o:["ТД","ТХ","HR","БР","ТР"]},
+{q:"Какой атрибут следует использовать для объединения ячеек столбца:",o:["колспан","расстояние между клетками","строка span","клеточная закладка","правила"]},
+{q:"Какой атрибут следует использовать для объединения ячеек строки:",o:["строка span","расстояние между клетками","колспан","правила","клеточная закладка"]},
+{q:"Какой атрибут используется для указания количества пустого пространства в ячейках, окружающих данные?",o:["клеточная закладка","расстояние между клетками","фон","колспан","выше"]},
+{q:"Какой атрибут типа double используется для изменения цвета заданного текста?",o:["ЦВЕТ ШРИФТА","BGCOLOR","ЦВЕТ ТЕКСТА","ШРИФТ","РАЗМЕР ШРИФТА"]},
+{q:"Какие значения принимает атрибут ALIGN?",o:["левый, центр, правый, обосновать","ширина, высота, свет, выравнивание","свет, центр, справа, обосновать","верх, середина, выравнивание, низ","левый, средний, обосновать, правый"]},
+{q:"Какой атрибут используется для вставки изображения в документ?",o:["IMG","КАК ДЕЛА","ВСТРОЕННЫЙ","ФОН","ПОД"]},
+{q:"Какой атрибут определяет структуру фреймов?",o:["НАБОР РАМОК","IFRAME","РАМКА","NOFRAMES","ВСТРОЕННЫЙ"]},
+{q:"Какой атрибут используется для установки информации во фреймах:",o:["РАМКА","IFRAME","НАБОР РАМОК","ВСТРОЕННЫЙ","NOFRAMES"]},
+{q:"Какой атрибут мы используем для работы с музыкальными файлами:",o:["ВСТРОЕННЫЙ","IMG","СКР","КАК ДЕЛА","ПОД"]},
+{q:"Атрибут, указывающий на файл, который необходимо загрузить:",o:["СКР","КАК ДЕЛА","IMG","ПОД","ВСТРОЕННЫЙ"]},
+{q:"Элемент, из которого состоит направляющая:",o:["МАРКЕТ","ВСТРОЕННЫЙ","ВЫСОТА МАРГИНХАЙТ","НАБОР РАМОК","IMG"]},
+{q:"Атрибут, указывающий, сколько раз ползунок проходит по экрану:",o:["Петля","Поведение","Scrollamount","Направление","Scrolldelay"]},
+{q:"Какой атрибут используется для обозначения скорости движения:",o:["Scrollamount","Направление","Scrolldelay","Петля","Поведение"]},
+{q:"Атрибут, управляющий полосой прокрутки в пределах определенной области:",o:["Прокрутка","Scrollamount","Поведение","Направление","Scrolldelay"]},
+{q:"Параметры атрибута SCROLING:",o:["да, нет, авто","слева, в центре, справа","левый, средний, правый","верх, центр, низ","выравнивание, верх, низ"]},
+{q:"Устройство, организующее диалог с пользователем на веб-странице:",o:["форма","рамка","скользящая направляющая","стол","связь"]},
+{q:"С какого двойного тега начинается шаблон?",o:["Форма и /Форма","Frame и /Frame","iframe и /Iframe","Frameset и /Framese","Таблица и /Таблица"]},
+{q:"Какой атрибут используется для указания шрифта?",o:["ШРИФТ","ЦВЕТ ТЕКСТА","ЦВЕТ ШРИФТА","РАЗМЕР ШРИФТА","BGCOLOR"]},
+{q:"Команда для создания элемента управления выглядит следующим образом:",o:["ВХОД","ЦЕНИТЬ","ТИП","КНОПКА","ИМЯ"]},
+{q:"Параметр, определяющий элемент управления:",o:["ТИП","ВХОД","ЦЕНИТЬ","КНОПКА","ИМЯ"]},
+{q:"Параметр, определяющий текст, отображаемый в элементе управления:",o:["ЦЕНИТЬ","ИМЯ","ТИП","ВХОД","КНОПКА"]},
+{q:"Окно для ввода текста в одну строку:",o:["TYPE=text","TYPE=radio","TYPE=checkbox","TYPE=hidden","TYPE=password"]},
+{q:"Окно для ввода ключа:",o:["TYPE=password","TYPE=checkbox","TYPE=text","TYPE=radio","TYPE=hidden"]},
+{q:"Текстовое окно:",o:["Текстовое поле","Вариант","Ценить","Скрытый","Выбирать"]},
+{q:"Переключатель:",o:["TYPE=radio","TYPE=checkbox","TYPE=hidden","TYPE=reset","TYPE=text"]},
+{q:"Отмеченный прямоугольник:",o:["TYPE=checkbox","TYPE=password","TYPE=text","TYPE=hidden","TYPE=radio"]},
+{q:"Удалить кнопку:",o:["TYPE=reset","TYPE=radio","TYPE=password","TYPE=text","TYPE=hidden"]},
+{q:"Для создания кнопки используется следующий элемент:",o:["КНОПКА","ВАРИАНТ","ВЫБИРАТЬ","ВХОД","Текстовая область"]},
+{q:"Атрибут, определяющий размер и состав кадров на экране:",o:["НАБОР РАМОК","IFRAME","РАМКА","ФОРМА","NOFRAMES"]},
+{q:"Атрибут, определяющий HTML-файл для каждого фрейма, выглядит следующим образом:",o:["РАМКА","НАБОР РАМОК","IFRAME","NOFRAMES","ФОРМА"]},
+{q:"Атрибут, не позволяющий перемещать границы фреймов с помощью мыши:",o:["Изменение размера недоступно","Ширина поля","Без рамок","Высота поля","Прокрутка"]},
+{q:"Что такое знак?",o:["Указывает точку в этом документе, к которой следует перейти по ссылке.","Указывает на наличие одной запятой в данном документе, которая чередуется с другой буквой.","Указывает место в этом документе, которое перемещается по номеру.","Указывает один цвет в этом документе, который будет чередоваться с другими цветами.","Этот документ, представляющий собой последовательность изображений, раскрывает скрытую в них красоту."]},
+{q:"Объяснение форматов &lt;Р ALIGN=« left» x/ P&gt;, используемых в форматировании HTML-страниц...",o:["выравнивание автомагистралей","сглаживание прямых дорог","сглаживание гладких дорог","выравнивание обработанных дорог","сглаживание изогнутых дорог"]},
+{q:"Объяснение формата &lt;FONT FACE=*&gt;&lt;/FONT&gt;, используемого в HTML...",o:["список шрифтов","список каталога","список бумаг","список дисков","список файлов"]},
+{q:"Объяснение формата &lt;А HREF=\"URL\"&gt; TEKCT&lt;/А&gt; для вставки гиперссылок, используемых в HTML...",o:["ссылка на другую страницу","ссылка на другой диск","ссылка на другой файл","ссылка на эту страницу","ссылка на другой каталог"]},
+{q:"В HTML используется понятие URL — унифицированный указатель ресурса...",o:["универсальный указатель ресурса (веб-адрес)","универсальный графический указатель (адрес документа в каталоге)","универсальный указатель темы (адрес документа в файловой сети)","Универсальный указатель документа (адрес документа в сети в программе)","Универсальный музыкальный локатор (адрес документа в интернете для музыкальных произведений)"]},
+{q:"&lt;HR&gt;",o:["Этот символ обозначает горизонтальную линию.","Начало и конец окна браузера в HTML-разметке","Этот атрибут определяет толщину линии.","Этот символ используется для перехода на новую строку без разрыва абзаца.","Теперь это будет определяться шириной экрана."]},
+{q:"Протоколы сетевого уровня...",o:["Она создается в виде программного модуля и выполняется в сети, называемой хостом, и на компьютере, называемом шлюзом, расположенном посередине.","протокол управления сообщениями","Протокол передачи дейтаграмм. Этот протокол предоставляет услуги маршрутизации.","дополнительный протокол, решающий проблему маршрутизации на коротких путях","Определяет адреса машин, используя обратный протокол ARP."]},
+{q:"RARP – Протокол обратного разрешения адресов – Протокол маршрутизации...",o:["Определяет адреса машин, используя обратный протокол ARP.","Она создается в виде программного модуля и выполняется в сети, называемой хостом, и на компьютере, называемом шлюзом, расположенном посередине.","протокол управления сообщениями","Протокол передачи дейтаграмм. Этот протокол предоставляет услуги маршрутизации.","дополнительный протокол, решающий проблему маршрутизации на коротких путях"]},
+{q:"NIS – Network Information Service – дополнительный протокол обслуживания...",o:["хранит информацию о клиентах в интернете.","отправляет информацию о маршрутизации во внутренние сети","Позволяет получать доступ к файлам на удаленном компьютере так, как если бы они находились на локальном компьютере.","передает информацию о маршрутизации между шлюзами.","отправляет информацию о маршрутизации во внешние сети"]}
+];
+
+const LETTERS=['А','Б','С','Д','Е'];
+const TOTAL=20;
+const TIME_LIMIT=40*60;
+let questions=[],answers=[],timerInterval=null,timeLeft=TIME_LIMIT,quizDone=false;
+
+function shuffle(arr){return arr.slice().sort(()=>Math.random()-0.5)}
+
+function startQuiz(){
+  const pool=shuffle(ALL_Q).slice(0,TOTAL);
+  // Первый вариант (индекс 0) всегда правильный — перемешиваем варианты
+  questions=pool.map(q=>{
+    const idx=q.o.map((_,i)=>i);
+    const sh=shuffle(idx);
+    return{q:q.q,o:sh.map(i=>q.o[i]),a:sh.indexOf(0)};
+  });
+  answers=Array(TOTAL).fill(null);
+  timeLeft=TIME_LIMIT;
+  quizDone=false;
+  showScreen('quiz-screen');
+  renderQuestions();
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimer();if(timeLeft<=0){clearInterval(timerInterval);triggerTimeout();}},1000);
+}
+
+function updateTimer(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const el=document.getElementById('timer-display');
+  const box=document.getElementById('timer-box');
+  if(el)el.textContent=str;
+  if(box){box.className='timer-box';if(timeLeft<=300)box.classList.add('danger');else if(timeLeft<=600)box.classList.add('warn');}
+}
+
+function triggerTimeout(){document.getElementById('timeout-overlay').classList.add('show');}
+function dismissTimeout(){document.getElementById('timeout-overlay').classList.remove('show');finalizeResults();}
+
+function renderQuestions(){
+  const c=document.getElementById('questions-container');
+  c.innerHTML=questions.map((q,qi)=>`
+    <div class="q-card" id="qcard-${qi}">
+      <div class="q-meta"><span class="q-num">Вопрос ${qi+1}</span><span class="q-status" id="qstatus-${qi}">Не отвечено</span></div>
+      <div class="q-text">${q.q}</div>
+      <div class="opts">${q.o.map((opt,oi)=>`
+        <div class="opt" id="opt-${qi}-${oi}" onclick="selectAnswer(${qi},${oi})">
+          <span class="opt-badge">${LETTERS[oi]}</span>
+          <span class="opt-text">${opt}</span>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function selectAnswer(qi,oi){
+  if(quizDone)return;
+  const prev=answers[qi];
+  answers[qi]=oi;
+  if(prev!==null){const p=document.getElementById('opt-'+qi+'-'+prev);if(p)p.className='opt';}
+  const el=document.getElementById('opt-'+qi+'-'+oi);if(el)el.className='opt selected';
+  const card=document.getElementById('qcard-'+qi);if(card)card.classList.add('answered');
+  const st=document.getElementById('qstatus-'+qi);if(st)st.textContent='Отвечено ✓';
+  updateProgress();
+}
+
+function updateProgress(){
+  const done=answers.filter(a=>a!==null).length;
+  const pct=Math.round(done/TOTAL*100);
+  const fill=document.getElementById('prog-fill');
+  if(fill)fill.style.width=pct+'%';
+  const txt=document.getElementById('prog-text');if(txt)txt.textContent='Отвечено: '+done+' / '+TOTAL;
+  const pctEl=document.getElementById('prog-pct');if(pctEl)pctEl.textContent=pct+'%';
+  const ac=document.getElementById('answered-count');if(ac)ac.textContent=done;
+}
+
+function submitQuiz(){
+  const done=answers.filter(a=>a!==null).length;
+  if(done<TOTAL){if(!confirm('Вы ответили на '+done+' из '+TOTAL+' вопросов. Завершить тест?'))return;}
+  clearInterval(timerInterval);
+  finalizeResults();
+}
+
+function finalizeResults(){
+  quizDone=true;
+  const score=answers.filter((a,i)=>a===questions[i].a).length;
+  const unanswered=answers.filter(a=>a===null).length;
+  const wrong=TOTAL-score-unanswered;
+  const pct=Math.round(score/TOTAL*100);
+  const timeUsed=TIME_LIMIT-timeLeft;
+  const mins=Math.floor(timeUsed/60),secs=timeUsed%60;
+  const grade=pct>=90?'Отлично!':pct>=70?'Хорошо!':pct>=50?'Удовлетворительно':'Нужно повторить';
+  const gradeClass=pct>=90?'excellent':pct>=70?'good':pct>=50?'ok':'fail';
+  document.getElementById('result-grade').textContent=grade;
+  document.getElementById('result-grade').className='result-grade '+gradeClass;
+  document.getElementById('result-pct').textContent=score+' / '+TOTAL+' правильных — '+pct+'%';
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-val c-green">${score}</div><div class="stat-lbl">Правильно</div></div>
+    <div class="stat-card"><div class="stat-val c-red">${wrong}</div><div class="stat-lbl">Неверно</div></div>
+    <div class="stat-card"><div class="stat-val c-muted">${unanswered}</div><div class="stat-lbl">Пропущено</div></div>
+    <div class="stat-card"><div class="stat-val c-blue">${mins}м ${String(secs).padStart(2,'0')}с</div><div class="stat-lbl">Затрачено</div></div>`;
+  const review=questions.map((q,i)=>{
+    const ua=answers[i],ca=q.a;
+    const isRight=ua===ca,isSkip=ua===null;
+    const cc=isSkip?'r-skip':isRight?'r-correct':'r-wrong';
+    let ah='';
+    if(isSkip)ah=`<div class="review-ans ra-skip"><span class="review-tag">ОТВЕТ</span><span>${q.o[ca]}</span></div>`;
+    else if(isRight)ah=`<div class="review-ans ra-correct"><span class="review-tag">✓</span><span>${q.o[ca]}</span></div>`;
+    else ah=`<div class="review-ans ra-wrong"><span class="review-tag">✗ ВЫ</span><span>${q.o[ua]}</span></div><div class="review-ans ra-correct"><span class="review-tag">✓ ВЕРНО</span><span>${q.o[ca]}</span></div>`;
+    return`<div class="review-card ${cc}"><div class="review-q">${i+1}. ${q.q}</div><div class="review-answers">${ah}</div></div>`;
+  }).join('');
+  document.getElementById('review-container').innerHTML=review;
+  showScreen('result-screen');
+}
+
+function newQuiz(){showScreen('start-screen');}
+function scrollToReview(){document.querySelector('.review-title').scrollIntoView({behavior:'smooth'});}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+</script>
+</body>
+</html>
